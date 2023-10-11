@@ -1,0 +1,32 @@
+body {
+    background-color: lightblue;
+    text-align: center;
+}
+
+h1 {
+    text-align: center;
+}
+h2 {
+    text-align: center;
+}
+
+.sub {
+    text-align: justify;
+}
+
+table {
+    background-color: blanchedalmond;
+    text-align: center;
+    width: 100%;
+}
+
+
+a {
+    text-decoration: none;
+    color: black;
+}
+
+div {
+    background-color: cadetblue;
+    color: cornsilk;
+}

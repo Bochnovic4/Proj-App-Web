@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<HTML>
+    <head>
+        <link rel="stylesheet" href="styl.css">
+        <meta http-equiv="Content-type" content="text/html; charset=UTF-8" />
+        <meta http-equiv="Content-Language" content="pl" />
+        <meta name="Author" content="Łukasz Bochno" />
+        <title>Moje hobby to szachy.</title>
+        <script src="kolorujtlo.js"></script>
+    </head>
+    <body>
+        <table>
+            <tr>
+                <td><a href="menu.html">Menu</a></td>
+                <td><a href="kontakt.html">Kontakt</a></td>
+                <td><a href="bierki.html">Bierki</a></td>
+                <td><a href="zasady.html">Zasady</a></td>
+                <td><a href="historia.html">Historia szachów</a></td>
+                <td><a href="fen.html">Notacja Fen</a></td>
+            </tr>
+        </table>
+        <div>
+            <form action="mailto:164344@student.uwm.edu.pl">
+                <label for="fname">Imię:</label><br>
+                <input type="text" id="fname" name="fname"><br>
+                <label for="lname">Nazwisko:</label><br>
+                <input type="text" id="lname" name="lname"><br>
+                <label for="lname">Email:</label><br>
+                <input type="text" id="email" name="email"><br>
+                <label for="lname">Wiadomość:</label><br>
+                <textarea>
+                </textarea><br>
+                <input type="submit">
+            </form>
+            <form method="post" name="background">
+                <tr></tr>
+                <label style="font-size: 1vw">Zmiana tła</label>
+                <br>
+                <input type=button value="żółty" onclick="changeBackground('#FFF000')">
+                <input type=button value="czarny" onclick="changeBackground('#000000')">
+                <input type=button value="biały" onclick="changeBackground('#FFFFFF')">
+                <input type=button value="zielony" onclick="changeBackground('#00FF00')">
+                <input type=button value="niebieski" onclick="changeBackground('#0000FF')">
+                <input type=button value="pomarańczowy" onclick="changeBackground('#FF8000')">
+                <input type=button value="szary" onclick="changeBackground('#c0c0c0')">
+                <input type=button value="czerwony" onclick="changeBackground('#FF0000')">
+            </form>
+        </div>
+    </body>
+</HTML>
