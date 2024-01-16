@@ -310,81 +310,82 @@ class CategoryManagement
 }
 
 $categoryManagement = new CategoryManagement();
-
-// Add new category
-if (isset($_POST['submit_new_category'])) {
-    $mother = isset($_POST['new_category_mother']) ? $_POST['new_category_mother'] : 0;
-    $name = $_POST['new_category_name'];
-
-    $categoryManagement->addCategory($mother, $name);
-
-    header('Location: ' . $_SERVER["REQUEST_URI"]);
-    exit();
-}
-
-// Edit category
-if (isset($_POST['edit_category_id'])) {
-    $category_id = $_POST['edit_category_id'];
+if ($_SESSION['zalogowany'] == true) {
+    if (isset($_POST['submit_new_category'])) {
+        $mother = isset($_POST['new_category_mother']) ? $_POST['new_category_mother'] : 0;
+        $name = $_POST['new_category_name'];
+    
+        $categoryManagement->addCategory($mother, $name);
+    
+        header('Location: ' . $_SERVER["REQUEST_URI"]);
+        exit();
+    }
+    
+    // Edit category
+    if (isset($_POST['edit_category_id'])) {
+        $category_id = $_POST['edit_category_id'];
+        echo "<h3>Edit Category:</h3>";
+        echo "<form method='post' action=''>";
+        echo "<label for='edit_category_id'>Category ID: </label>";
+        echo "<input type='text' name='edit_category_id' value='{$category_id}' readonly /><br />";
+        echo "<label for='new_category_name'>New Category Name: </label>";
+        echo "<input type='text' name='new_category_name' /><br />";
+        echo "<input type='submit' name='submit_edit_category' value='Edit Category' />";
+        echo "</form>";
+    }
+    
+    // Edit category submission
+    if (isset($_POST['submit_edit_category'])) {
+        $category_id = $_POST['edit_category_id'];
+        $new_name = $_POST['new_category_name'];
+        $categoryManagement->editCategory($category_id, $new_name);
+    }
+    
+    // Delete category
+    if (isset($_POST['delete_category_id'])) {
+        $category_id = $_POST['delete_category_id'];
+        $categoryManagement->deleteCategory($category_id);
+        header('Location: ' . $_SERVER["REQUEST_URI"]);
+        exit();
+    }
+    
+    // Display categories
+    echo "<h3>Categories:</h3>";
+    $categoryManagement->showCategories();
+    
+    // Display category tree
+    echo "<h3>Category Tree:</h3>";
+    $categoryManagement->generateCategoryTree();
+    
+    // Display form for adding a new category
+    echo "<h3>Add New Category:</h3>";
+    echo "<form method='post' action=''>";
+    echo "<label for='new_category_name'>Category Name: </label>";
+    echo "<input type='text' name='new_category_name' /><br />";
+    echo "<label for='new_category_mother'>Mother Category (0 for main category):</label>";
+    echo "<input type='text' name='new_category_mother' /><br />";
+    echo "<input type='submit' name='submit_new_category' value='Add New Category' />";
+    echo "</form>";
+    
+    // Display form for deleting a category
+    echo "<h3>Delete Category:</h3>";
+    echo "<form method='post' action=''>";
+    echo "<label for='delete_category_id'>Category ID: </label>";
+    echo "<input type='text' name='delete_category_id' /><br />";
+    echo "<input type='submit' name='submit_delete_category' value='Delete Category' />";
+    echo "</form>";
+    
+    // Display form for editing a category
     echo "<h3>Edit Category:</h3>";
     echo "<form method='post' action=''>";
     echo "<label for='edit_category_id'>Category ID: </label>";
-    echo "<input type='text' name='edit_category_id' value='{$category_id}' readonly /><br />";
+    echo "<input type='text' name='edit_category_id' /><br />";
     echo "<label for='new_category_name'>New Category Name: </label>";
     echo "<input type='text' name='new_category_name' /><br />";
     echo "<input type='submit' name='submit_edit_category' value='Edit Category' />";
     echo "</form>";
 }
 
-// Edit category submission
-if (isset($_POST['submit_edit_category'])) {
-    $category_id = $_POST['edit_category_id'];
-    $new_name = $_POST['new_category_name'];
-    $categoryManagement->editCategory($category_id, $new_name);
-}
-
-// Delete category
-if (isset($_POST['delete_category_id'])) {
-    $category_id = $_POST['delete_category_id'];
-    $categoryManagement->deleteCategory($category_id);
-    header('Location: ' . $_SERVER["REQUEST_URI"]);
-    exit();
-}
-
-// Display categories
-echo "<h3>Categories:</h3>";
-$categoryManagement->showCategories();
-
-// Display category tree
-echo "<h3>Category Tree:</h3>";
-$categoryManagement->generateCategoryTree();
-
-// Display form for adding a new category
-echo "<h3>Add New Category:</h3>";
-echo "<form method='post' action=''>";
-echo "<label for='new_category_name'>Category Name: </label>";
-echo "<input type='text' name='new_category_name' /><br />";
-echo "<label for='new_category_mother'>Mother Category (0 for main category):</label>";
-echo "<input type='text' name='new_category_mother' /><br />";
-echo "<input type='submit' name='submit_new_category' value='Add New Category' />";
-echo "</form>";
-
-// Display form for deleting a category
-echo "<h3>Delete Category:</h3>";
-echo "<form method='post' action=''>";
-echo "<label for='delete_category_id'>Category ID: </label>";
-echo "<input type='text' name='delete_category_id' /><br />";
-echo "<input type='submit' name='submit_delete_category' value='Delete Category' />";
-echo "</form>";
-
-// Display form for editing a category
-echo "<h3>Edit Category:</h3>";
-echo "<form method='post' action=''>";
-echo "<label for='edit_category_id'>Category ID: </label>";
-echo "<input type='text' name='edit_category_id' /><br />";
-echo "<label for='new_category_name'>New Category Name: </label>";
-echo "<input type='text' name='new_category_name' /><br />";
-echo "<input type='submit' name='submit_edit_category' value='Edit Category' />";
-echo "</form>";
 
 class ProductManagement
 {
@@ -396,6 +397,20 @@ class ProductManagement
 
         if ($this->conn->connect_error) {
             die("Connection failed: " . $this->conn->connect_error);
+        }
+    }
+
+    public function getProductById($id)
+    {
+        $id = $this->conn->real_escape_string($id);
+
+        $sql = "SELECT * FROM products WHERE id = '$id'";
+        $result = $this->conn->query($sql);
+
+        if ($result->num_rows > 0) {
+            return $result->fetch_assoc();
+        } else {
+            return null;
         }
     }
 
@@ -484,6 +499,8 @@ class ProductManagement
                 <th>Category</th>
                 <th>Dimensions</th>
                 <th>Image</th>
+                <th>Edit</th>
+                <th>Delete</th>
             </tr>";
 
         while ($row = $result->fetch_assoc()) {
@@ -499,178 +516,165 @@ class ProductManagement
                 <td>{$row['category']}</td>
                 <td>{$row['dimensions']}</td>
                 <td><img src='{$row['image_link']}' style='max-width: 100px; max-height: 100px;'></td>
+                <td><form method='post' action=''>
+                    <input type='hidden' name='edit_product_id' value='{$row['id']}'>
+                    <input type='submit' name='edit_product_button' value='Edit'>
+                </form></td>
+                <td><form method='post' action=''>
+                    <input type='hidden' name='delete_product_id' value='{$row['id']}'>
+                    <input type='submit' name='delete_product_button' value='Delete'>
+                </form></td>
             </tr>";
         }
 
         echo "</table>";
+
     }
 }
 
 $productManagement = new ProductManagement();
-
-echo '<form method="post" action="">
-    <label for="new_product_title">Product Title: </label>
-    <input type="text" name="new_product_title" /><br />
-
-    <label for="new_product_description">Product Description:</label>
-    <textarea name="new_product_description"></textarea><br />
-
-    <label for="new_product_expiration_date">Expiration Date:</label>
-    <input type="text" name="new_product_expiration_date" /><br />
-
-    <label for="new_product_net_price">Net Price:</label>
-    <input type="text" name="new_product_net_price" /><br />
-
-    <label for="new_product_vat_tax">VAT Tax:</label>
-    <input type="text" name="new_product_vat_tax" /><br />
-
-    <label for="new_product_available_quantity">Available Quantity:</label>
-    <input type="text" name="new_product_available_quantity" /><br />
-
-    <label for="new_product_availability_status">Availability Status:</label>
-    <input type="text" name="new_product_availability_status" /><br />
-
-    <label for="new_product_category">Category:</label>
-    <input type="text" name="new_product_category" /><br />
-
-    <label for="new_product_dimensions">Dimensions:</label>
-    <input type="text" name="new_product_dimensions" /><br />
-
-    <label for="new_product_image">Image:</label>
-    <input type="text" name="new_product_image" /><br />
-
-    <input type="submit" name="submit_new_product" value="Add New Product" />
-</form>
-';
-
-if (isset($_POST['submit_new_product'])) {
-    $title = $_POST['new_product_title'];
-    $description = $_POST['new_product_description'];
-    $expiration_date = $_POST['new_product_expiration_date'];
-    $net_price = $_POST['new_product_net_price'];
-    $vat_tax = $_POST['new_product_vat_tax'];
-    $available_quantity = $_POST['new_product_available_quantity'];
-    $availability_status = $_POST['new_product_availability_status'];
-    $category = $_POST['new_product_category'];
-    $dimensions = $_POST['new_product_dimensions'];
-    $image = $_POST['new_product_image'];
-
-    $productManagement->addProduct($title, $description, $expiration_date, $net_price, $vat_tax, $available_quantity, $availability_status, $category, $dimensions, $image);
-
-    // Redirect after processing the form to prevent resubmission on refresh
-    header('Location: ' . $_SERVER["REQUEST_URI"]);
-    exit();
-}
-
-// Edit product
-if (isset($_POST['edit_product_id'])) {
-    $product_id = $_POST['edit_product_id'];
-    $product = $productManagement->getProductById($product_id);
-
-    echo "<h3>Edit Product:</h3>";
+if ($_SESSION['zalogowany'] == true) {
+    if (isset($_POST['submit_new_product'])) {
+        $title = $_POST['new_product_title'];
+        $description = $_POST['new_product_description'];
+        $expiration_date = $_POST['new_product_expiration_date'];
+        $net_price = $_POST['new_product_net_price'];
+        $vat_tax = $_POST['new_product_vat_tax'];
+        $available_quantity = $_POST['new_product_available_quantity'];
+        $availability_status = $_POST['new_product_availability_status'];
+        $category = $_POST['new_product_category'];
+        $dimensions = $_POST['new_product_dimensions'];
+        $image = $_POST['new_product_image'];
+    
+        $productManagement->addProduct($title, $description, $expiration_date, $net_price, $vat_tax, $available_quantity, $availability_status, $category, $dimensions, $image);
+    
+        header('Location: ' . $_SERVER["REQUEST_URI"]);
+        exit();
+    }
+    
+    
+    if (isset($_POST['submit_edit_product'])) {
+        $product_id = $_POST['edit_product_id'];
+        $title = $_POST['edit_product_title'];
+        $description = $_POST['edit_product_description'];
+        $expiration_date = $_POST['edit_product_expiration_date'];
+        $net_price = $_POST['edit_product_net_price'];
+        $vat_tax = $_POST['edit_product_vat_tax'];
+        $available_quantity = $_POST['edit_product_available_quantity'];
+        $availability_status = $_POST['edit_product_availability_status'];
+        $category = $_POST['edit_product_category'];
+        $dimensions = $_POST['edit_product_dimensions'];
+        $image = $_POST['edit_product_image'];
+    
+        $productManagement->editProduct($product_id, $title, $description, $expiration_date, $net_price, $vat_tax, $available_quantity, $availability_status, $category, $dimensions, $image);
+    
+        header('Location: ' . $_SERVER["REQUEST_URI"]);
+        exit();
+    }
+    
+    // Delete product
+    if (isset($_POST['delete_product_id'])) {
+        $product_id = $_POST['delete_product_id'];
+        $productManagement->deleteProduct($product_id);
+        header('Location: ' . $_SERVER["REQUEST_URI"]);
+        exit();
+    }
+    
+    // Display products
+    $productManagement->showProducts();
+    
+    // Display form for adding a new product
+    echo "<h3>Add New Product:</h3>";
     echo "<form method='post' action=''>";
-    echo "<label for='edit_product_id'>Product ID: </label>";
-    echo "<input type='text' name='edit_product_id' value='{$product_id}' readonly /><br />";
-
-    // Display the existing values of the product for editing
-    echo "<label for='edit_product_title'>Product Title: </label>";
-    echo "<input type='text' name='edit_product_title' value='{$product['title']}' /><br />";
-
-    echo "<label for='edit_product_description'>Product Description:</label>";
-    echo "<textarea name='edit_product_description'>{$product['description']}</textarea><br />";
-
-    echo "<label for='edit_product_expiration_date'>Expiration Date:</label>";
-    echo "<input type='date' name='edit_product_expiration_date' value='{$product['expiration_date']}' /><br />";
-
-    echo "<label for='edit_product_net_price'>Net Price:</label>";
-    echo "<input type='text' name='edit_product_net_price' value='{$product['net_price']}' /><br />";
-
-    echo "<label for='edit_product_vat_tax'>VAT Tax:</label>";
-    echo "<input type='text' name='edit_product_vat_tax' value='{$product['vat_tax']}' /><br />";
-
-    echo "<label for='edit_product_available_quantity'>Available Quantity:</label>";
-    echo "<input type='text' name='edit_product_available_quantity' value='{$product['available_quantity']}' /><br />";
-
-    echo "<label for='edit_product_availability_status'>Availability Status:</label>";
-    echo "<input type='text' name='edit_product_availability_status' value='{$product['availability_status']}' /><br />";
-
-    echo "<label for='edit_product_category'>Category:</label>";
-    echo "<input type='text' name='edit_product_category' value='{$product['category']}' /><br />";
-
-    echo "<label for='edit_product_dimensions'>Dimensions:</label>";
-    echo "<input type='text' name='edit_product_dimensions' value='{$product['dimensions']}' /><br />";
-
-    echo "<label for='edit_product_image'>Image:</label>";
-    echo "<input type='text' name='edit_product_image' value='{$product['image_link']}' /><br />";
-
-    echo "<input type='submit' name='submit_edit_product' value='Edit Product' />";
+    echo "<table>";
+    echo "<tr><td><label for='new_product_title'>Product Title: </label></td><td><input type='text' name='new_product_title' /></td></tr>";
+    echo "<tr><td><label for='new_product_description'>Product Description:</label></td><td><textarea name='new_product_description'></textarea></td></tr>";
+    echo "<td><label for='new_product_expiration_date'>Expiration Date:</label></td><td><input type='date' name='new_product_expiration_date' /></td>";
+    echo "<tr><td><label for='new_product_net_price'>Net Price:</label></td><td><input type='text' name='new_product_net_price' /></td></tr>";
+    echo "<tr><td><label for='new_product_vat_tax'>VAT Tax:</label></td><td><input type='text' name='new_product_vat_tax' /></td></tr>";
+    echo "<tr><td><label for='new_product_available_quantity'>Available Quantity:</label></td><td><input type='text' name='new_product_available_quantity' /></td></tr>";
+    echo "<tr><td><label for='new_product_availability_status'>Availability Status:</label></td><td><input type='text' name='new_product_availability_status' /></td></tr>";
+    echo "<tr><td><label for='new_product_category'>Category:</label></td><td><input type='text' name='new_product_category' /></td></tr>";
+    echo "<tr><td><label for='new_product_dimensions'>Dimensions:</label></td><td><input type='text' name='new_product_dimensions' /></td></tr>";
+    echo "<tr><td><label for='new_product_image'>Image:</label></td><td><input type='text' name='new_product_image' /></td></tr>";
+    echo "</table>";
+    echo "<input type='submit' name='submit_new_product' value='Add New Product' />";
     echo "</form>";
+        
+    
+    if (isset($_POST['edit_product_id'])) {
+        $product_id = $_POST['edit_product_id'];
+        $product = $productManagement->getProductById($product_id);
+    
+        if ($product !== null) {
+            echo "<h3>Edit Product:</h3>";
+            echo "<form method='post' action=''>";
+            echo "<label for='edit_product_id'>Product ID: </label>";
+            echo "<input type='text' name='edit_product_id' value='{$product_id}' readonly /><br />";
+            
+            echo "<label for='edit_product_title'>Product Title: </label>";
+            echo "<input type='text' name='edit_product_title' value='{$product['title']}' /><br />";
+            
+            echo "<label for='edit_product_description'>Product Description:</label>";
+            echo "<textarea name='edit_product_description'>{$product['description']}</textarea><br />";
+            
+            echo "<label for='edit_product_expiration_date'>Expiration Date:</label>";
+            echo "<input type='date' name='edit_product_expiration_date' value='{$product['expiration_date']}' /><br />";
+            
+            echo "<label for='edit_product_net_price'>Net Price:</label>";
+            echo "<input type='text' name='edit_product_net_price' value='{$product['net_price']}' /><br />";
+            
+            echo "<label for='edit_product_vat_tax'>VAT Tax:</label>";
+            echo "<input type='text' name='edit_product_vat_tax' value='{$product['vat_tax']}' /><br />";
+            
+            echo "<label for='edit_product_available_quantity'>Available Quantity:</label>";
+            echo "<input type='text' name='edit_product_available_quantity' value='{$product['available_quantity']}' /><br />";
+            
+            echo "<label for='edit_product_availability_status'>Availability Status:</label>";
+            echo "<input type='text' name='edit_product_availability_status' value='{$product['availability_status']}' /><br />";
+            
+            echo "<label for='edit_product_category'>Category:</label>";
+            echo "<input type='text' name='edit_product_category' value='{$product['category']}' /><br />";
+            
+            echo "<label for='edit_product_dimensions'>Dimensions:</label>";
+            echo "<input type='text' name='edit_product_dimensions' value='{$product['dimensions']}' /><br />";
+            
+            echo "<label for='edit_product_image'>Image:</label>";
+            echo "<input type='text' name='edit_product_image' value='{$product['image_link']}' /><br />";
+            
+            echo "<input type='submit' name='submit_edit_product_changes' value='Submit Changes' />";
+            echo "<input type='submit' name='cancel_edit_product' value='Cancel' />";
+            echo "</form>";
+        } else {
+            echo "Product not found.";
+        }
+    }
+    
+    
+    if (isset($_POST['submit_edit_product_changes'])) {
+        $product_id = $_POST['edit_product_id'];
+        $title = $_POST['edit_product_title'];
+        $description = $_POST['edit_product_description'];
+        $expiration_date = $_POST['edit_product_expiration_date'];
+        $net_price = $_POST['edit_product_net_price'];
+        $vat_tax = $_POST['edit_product_vat_tax'];
+        $available_quantity = $_POST['edit_product_available_quantity'];
+        $availability_status = $_POST['edit_product_availability_status'];
+        $category = $_POST['edit_product_category'];
+        $dimensions = $_POST['edit_product_dimensions'];
+        $image = $_POST['edit_product_image'];
+    
+        $productManagement->editProduct($product_id, $title, $description, $expiration_date, $net_price, $vat_tax, $available_quantity, $availability_status, $category, $dimensions, $image);
+    
+        header('Location: ' . $_SERVER["REQUEST_URI"]);
+        exit();
+    } elseif (isset($_POST['cancel_edit_product'])) {
+        header('Location: ' . $_SERVER["REQUEST_URI"]);
+        exit();
+    }
 }
 
-if (isset($_POST['submit_edit_product'])) {
-    $product_id = $_POST['edit_product_id'];
-    $title = $_POST['edit_product_title'];
-    $description = $_POST['edit_product_description'];
-    $expiration_date = $_POST['edit_product_expiration_date'];
-    $net_price = $_POST['edit_product_net_price'];
-    $vat_tax = $_POST['edit_product_vat_tax'];
-    $available_quantity = $_POST['edit_product_available_quantity'];
-    $availability_status = $_POST['edit_product_availability_status'];
-    $category = $_POST['edit_product_category'];
-    $dimensions = $_POST['edit_product_dimensions'];
-    $image = $_POST['edit_product_image'];
 
-    $productManagement->editProduct($product_id, $title, $description, $expiration_date, $net_price, $vat_tax, $available_quantity, $availability_status, $category, $dimensions, $image);
-
-    header('Location: ' . $_SERVER["REQUEST_URI"]);
-    exit();
-}
-
-// Delete product
-if (isset($_POST['delete_product_id'])) {
-    $product_id = $_POST['delete_product_id'];
-    $productManagement->deleteProduct($product_id);
-    header('Location: ' . $_SERVER["REQUEST_URI"]);
-    exit();
-}
-
-// Display products
-echo "<h3>Products:</h3>";
-$productManagement->showProducts();
-
-// Display form for adding a new product
-echo "<h3>Add New Product:</h3>";
-echo "<form method='post' action=''>";
-echo "<table>";
-echo "<tr><td><label for='new_product_title'>Product Title: </label></td><td><input type='text' name='new_product_title' /></td></tr>";
-echo "<tr><td><label for='new_product_description'>Product Description:</label></td><td><textarea name='new_product_description'></textarea></td></tr>";
-echo "<tr><td><label for='new_product_expiration_date'>Expiration Date:</label></td><td><input type='text' name='new_product_expiration_date' /></td></tr>";
-echo "<tr><td><label for='new_product_net_price'>Net Price:</label></td><td><input type='text' name='new_product_net_price' /></td></tr>";
-echo "<tr><td><label for='new_product_vat_tax'>VAT Tax:</label></td><td><input type='text' name='new_product_vat_tax' /></td></tr>";
-echo "<tr><td><label for='new_product_available_quantity'>Available Quantity:</label></td><td><input type='text' name='new_product_available_quantity' /></td></tr>";
-echo "<tr><td><label for='new_product_availability_status'>Availability Status:</label></td><td><input type='text' name='new_product_availability_status' /></td></tr>";
-echo "<tr><td><label for='new_product_category'>Category:</label></td><td><input type='text' name='new_product_category' /></td></tr>";
-echo "<tr><td><label for='new_product_dimensions'>Dimensions:</label></td><td><input type='text' name='new_product_dimensions' /></td></tr>";
-echo "<tr><td><label for='new_product_image'>Image:</label></td><td><input type='text' name='new_product_image' /></td></tr>";
-echo "</table>";
-echo "<input type='submit' name='submit_new_product' value='Add New Product' />";
-echo "</form>";
-
-// Display form for deleting a product
-echo "<h3>Delete Product:</h3>";
-echo "<form method='post' action=''>";
-echo "<label for='delete_product_id'>Product ID: </label>";
-echo "<input type='text' name='delete_product_id' /><br />";
-echo "<input type='submit' name='submit_delete_product' value='Delete Product' />";
-echo "</form>";
-
-// Display form for editing a product
-echo "<h3>Edit Product:</h3>";
-echo "<form method='post' action=''>";
-echo "<label for='edit_product_id'>Product ID: </label>";
-echo "<input type='text' name='edit_product_id' /><br />";
-echo "<input type='submit' name='submit_edit_product' value='Edit Product' />";
-echo "</form>";
 
 ob_end_flush();
 ?>
